@@ -1,0 +1,63 @@
+<form name="registerForm" novalidate ng-submit="registerForm.$valid && ctrl.register()">
+  <fieldset>
+    <legend>Register</legend>
+    <div class="form-group">
+      <label for="firstname">First Name</label>
+      <input type="text" required name="first_name" ng-model="ctrl.registration.firstName" class="form-control" id="firstname" placeholder="First Name">
+      <div ng-messages="registerForm.first_name.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="lastname">Last Name</label>
+      <input type="text" required name="last_name" ng-model="ctrl.registration.lastName" class="form-control" id="lastname" placeholder="Last Name">
+      <div ng-messages="registerForm.last_name.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" required name="email" ng-model="ctrl.registration.email" class="form-control" id="email" placeholder="Email">
+      <div ng-messages="registerForm.email.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" required minlength="4" name="username" ng-model="ctrl.registration.username" class="form-control" id="username" placeholder="Username">
+      <div ng-messages="registerForm.username.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" minlength="6" required name="password" ng-model="ctrl.registration.password" class="form-control" id="password" placeholder="Password">
+      <div ng-messages="registerForm.password.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="pin">Security Pin</label>
+      <input type="password" required name="pin" ng-model="ctrl.registration.pin" class="form-control" id="pin" placeholder="Security Pin">
+      <div ng-messages="registerForm.pin.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="phone">Cell Phone</label>
+      <input type="tel" required ng-model="ctrl.registration.phone" name="phone" class="form-control" id="phone" placeholder="Cell Phone">
+      <div ng-messages="registerForm.phone.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+      </div>
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="ctrl.registration.secure"> Enhanced Security
+      </label>
+    </div>
+    <div class="auth-footer">
+      <button type="submit" class="btn btn-success">Register</button>
+      <span>or <a ui-sref="auth.login">log in</a></span>
+    </div>
+  </fieldset>
+</form>

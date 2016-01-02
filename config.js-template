@@ -1,0 +1,4 @@
+module.exports = {
+  sessionSecret: 'YccQCzlZxWp5tHmXj0veYbo16r2Oo7ADWT1EWGLTbN6WPAuoGN',
+  db:'mysql://root:1@localhost:3306/octa-dev',
+};

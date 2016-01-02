@@ -1,0 +1,131 @@
+/**
+ *  If you want to override some bootstrap variables, you have to change values here.
+ *  The list of variables are listed here bower_components/bootstrap-sass/assets/stylesheets/bootstrap/_variables.scss
+ */
+$icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
+@import "variables";
+
+/**
+ *  Do not remove the comments below. It's the markers used by wiredep to inject
+ *  sass dependencies when defined in the bower.json of your dependencies
+ */
+// bower:scss
+// endbower
+
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+
+html, body, .content {
+  height: 100%;
+  background: #eeeded;
+}
+
+body, .content {
+  display: flex;
+  flex-direction: column;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+}
+
+//Element shadows
+.card {
+  background: #ffffff;
+  border-radius: $border-radius-large;
+}
+
+.card-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.2s ease-in-out;
+}
+
+.card-1:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-2 {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-3 {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-4 {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.card-5 {
+  box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+//Form states
+form {
+  .form-group {
+    position: relative;
+  }
+
+  [ng-messages] {
+    @extend .alert;
+    @extend .alert-danger;
+    padding: 0.2em;
+
+    @media (min-width: 700px) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+
+      margin: 0 0 0 0.5em;
+      padding: 0.3em;
+      position: absolute;
+      left:100%;
+      bottom: 0;
+      min-width: 10em;
+      min-height: $input-height-base;
+
+      &:after {
+        right: 100%;
+        top: 50%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-right-color: $alert-danger-bg;
+        border-width: 0.5em;
+        margin-top: -0.5em;
+      }
+    }
+  }
+
+  &.ng-submitted .ng-invalid {
+    color: $state-danger-bg;
+    border-color: $state-danger-bg;
+  }
+
+  &:not(.ng-submitted) .ng-pristine + [ng-messages], .ng-valid + [ng-messages] {
+    display: none;
+  }
+
+  &:not(.ng-submitted) [ng-messages] {
+    display: none;
+  }
+
+}
+
+/**
+ *  Do not remove the comments below. It's the markers used by gulp-inject to inject
+ *  all your sass files automatically
+ */
+// injector
+// endinjector

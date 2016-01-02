@@ -1,0 +1,21 @@
+.auth-box {
+  margin: auto;
+  padding: 2em;
+  width: 100%;
+  min-width: 10em;
+  max-width: 26em;
+}
+
+.auth-footer {
+  display: flex;
+  align-items: center;
+}
+
+.auth-footer *:not(:last-child) {
+  margin-right: 0.5em;
+}
+
+.forgot-password {
+  margin-top: 0.3em;
+  text-align: right;
+}
