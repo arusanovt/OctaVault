@@ -59,10 +59,17 @@ export class AuthController {
     }
   }
 
-  doRegistration() {
-    let $form = this.$scope.form;
-    $form.$setValidity('server', true);
+  doAuth(method, data, goTo = 'wallet.list') {
+    console.log(method, data);
+    this.authService[method](data)
+      .then((responseData)=> {
+        console.log(method, responseData);
+        this.$state.transitionTo(goTo);
+      })
+      .catch((err)=>this._mapValidationErrors(err));
+  }
 
+  doRegistration() {
     console.log('register', this.registration);
     this.authService
       .register(this.registration)

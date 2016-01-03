@@ -36,7 +36,7 @@ module.exports = function(db, cb) {
     validations: {
       username: [
         enforce.unique('username already taken'),
-        enforce.security.username({length: 4}, 'username should contain at least 4 letters'),
+        enforce.security.username({length: 4}, 'username should consist of letters or numbers and contain at least 4 letters'),
       ],
       email: [
         enforce.unique('email already exists'),
