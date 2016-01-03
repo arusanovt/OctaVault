@@ -1,9 +1,16 @@
 var qOrm = require('q-orm');
+var orm = require('orm');
 var config = require('../../config');
+
+orm.settings.set('instance.returnAllErrors', true);
 
 module.exports = qOrm.qExpress(config.db, {
   define: function(db, models, next) {
-    db.load('./models/user');
-    db.sync(next);
+    models = db.load('./models/user', function(err) {
+      models.User = db.models.User;
+      models.UserTrustedIp = db.models.UserTrustedIp;
+
+      db.sync(next);
+    });
   },
 });

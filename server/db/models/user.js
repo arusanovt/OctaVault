@@ -1,8 +1,10 @@
 var orm = require('orm');
+var qOrm = require('q-orm');
+
 var enforce = orm.enforce;
 
 module.exports = function(db, cb) {
-  var User = db.define('User', {
+  var User = db.qDefine('User', {
     firstName: {type: 'text'},
     lastName: {type: 'text'},
     email: {type: 'text', unique: true, required: true},
@@ -47,13 +49,13 @@ module.exports = function(db, cb) {
     },
   });
 
-  var UserTrustedIp = db.define('UserTrustedIp', {
+  var UserTrustedIp = db.qDefine('UserTrustedIp', {
     ip: {type: 'text', required: true},
 
     //timestamps
     created: {type: 'date', time: true},
   });
 
-  UserTrustedIp.hasOne('owner', User, {reverse: 'trustedIp'});
+  UserTrustedIp.qHasOne('owner', User, {reverse: 'trustedIp'});
   return cb();
 };

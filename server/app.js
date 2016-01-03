@@ -35,7 +35,7 @@ if (app.get('env') === 'production') {
 }
 
 app.use(session(sess));
-app.use(csrf());
+app.use(csrf({cookie:true}));
 app.use(function(req, res, next) {
   var token = req.csrfToken();
   res.cookie('x-csrf-token', token);

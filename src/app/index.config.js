@@ -8,16 +8,20 @@ export function config($logProvider, $locationProvider, $httpProvider) {
   $locationProvider.html5Mode(true);
   $locationProvider.hashPrefix('!');
 
+  //Handling csrf
+  $httpProvider.defaults.xsrfHeaderName = 'xsrf-token';
+  $httpProvider.defaults.xsrfCookieName = 'x-csrf-token';
+
   //Handling auth
   $httpProvider.interceptors.push(function($q, $injector) {
     'ngInject';
     return {
       responseError: function(rejection) {
-        if (rejection.status !== 401) {
+        if (rejection.status === 401) {
+          $injector.get('$state').transitionTo('auth.login');
           return rejection;
         }
 
-        $injector.get('$state').transitionTo('auth.login');
         return $q.reject(rejection);
       },
     };

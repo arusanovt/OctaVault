@@ -113,7 +113,7 @@ form {
     border-color: $state-danger-bg;
   }
 
-  &:not(.ng-submitted) .ng-pristine + [ng-messages], .ng-valid + [ng-messages] {
+  &:not(.ng-submitted) .ng-pristine + [ng-messages], .ng-valid + [ng-messages], .ng-inactive[ng-messages] {
     display: none;
   }
 
@@ -121,6 +121,9 @@ form {
     display: none;
   }
 
+  [vc-recaptcha] {
+    margin: 1em 0;
+  }
 }
 
 /**
