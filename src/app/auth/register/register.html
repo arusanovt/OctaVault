@@ -1,9 +1,10 @@
-<form name="form" novalidate ng-submit="form.$valid && ctrl.doRegistration()">
+<form name="form" novalidate ng-submit="form.$valid && ctrl.doAuth('register',ctrl.registration)">
   <fieldset>
     <legend>Register</legend>
     <div class="form-group">
       <label for="firstname">First Name</label>
-      <input type="text" required server-validation name="firstName" ng-model="ctrl.registration.firstName" class="form-control" id="firstname" placeholder="First Name">
+      <input type="text" required server-validation name="firstName" ng-model="ctrl.registration.firstName"
+             class="form-control" id="firstname" placeholder="First Name">
       <div ng-messages="form.firstName.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.firstName.$error.server}}</div>
@@ -11,7 +12,8 @@
     </div>
     <div class="form-group">
       <label for="lastname">Last Name</label>
-      <input type="text" required server-validation name="lastName" ng-model="ctrl.registration.lastName" class="form-control" id="lastname" placeholder="Last Name">
+      <input type="text" required server-validation name="lastName" ng-model="ctrl.registration.lastName"
+             class="form-control" id="lastname" placeholder="Last Name">
       <div ng-messages="form.lastName.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.lastName.$error.server}}</div>
@@ -19,7 +21,8 @@
     </div>
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" required server-validation name="email" ng-model="ctrl.registration.email" class="form-control" id="email" placeholder="Email">
+      <input type="email" required server-validation name="email" ng-model="ctrl.registration.email"
+             class="form-control" id="email" placeholder="Email">
       <div ng-messages="form.email.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.email.$error.server}}</div>
@@ -27,35 +30,59 @@
     </div>
     <div class="form-group">
       <label for="username">Username</label>
-      <input type="text" required server-validation minlength="4" name="username" ng-model="ctrl.registration.username" class="form-control" id="username" placeholder="Username">
+      <input type="text" username-validation="4" required server-validation minlength="4" name="username" ng-model="ctrl.registration.username"
+             class="form-control" id="username" placeholder="Username" aria-describedby="usernameHelpBlock">
       <div ng-messages="form.username.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.username.$error.server}}</div>
       </div>
+      <span id="usernameHelpBlock" class="help-block">Should start with a letter, consist of letters or numbers and contain at least 4 letters</span>
     </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" server-validation minlength="6" required name="password" ng-model="ctrl.registration.password" class="form-control" id="password" placeholder="Password">
+      <input type="password" password-validation server-validation minlength="6" required name="password"
+             ng-model="ctrl.registration.password" class="form-control" id="password" placeholder="Password"
+             aria-describedby="passwordHelpBlock">
       <div ng-messages="form.password.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.password.$error.server}}</div>
       </div>
+      <span id="passwordHelpBlock" class="help-block">Strong password should contain lowercase letters, uppercase letters, numbers,
+         special characters and have minimal length of 6</span>
     </div>
     <div class="form-group">
       <label for="pin">Security Pin</label>
-      <input type="password" server-validation required name="pin" ng-model="ctrl.registration.pin" class="form-control" id="pin" placeholder="Security Pin">
+      <input type="password"
+             number-validation
+             minlength="4"
+             maxlength="6"
+             server-validation
+             required
+             name="pin"
+             ng-model="ctrl.registration.pin"
+             class="form-control"
+             id="pin"
+             placeholder="Security Pin"
+             aria-describedby="pinHelpBlock"
+      >
       <div ng-messages="form.pin.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.pin.$error.server}}</div>
+        <div ng-message-exp="['minlength','maxlength']">
+          Security Pin must be between 4 and 6 characters long
+        </div>
       </div>
+      <span id="pinHelpBlock" class="help-block">4-6 digits security code</span>
     </div>
     <div class="form-group">
-      <label for="phone">Cell Phone</label>
-      <input type="tel" server-validation required ng-model="ctrl.registration.phone" name="phone" class="form-control" id="phone" placeholder="Cell Phone">
+      <label for="phone">Phone number</label>
+      <input type="tel" phone-number-validation server-validation required ng-model="ctrl.registration.phone" name="phone" class="form-control"
+             id="phone" placeholder="Cell Phone" aria-describedby="phoneHelpBlock">
       <div ng-messages="form.phone.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.phone.$error.server}}</div>
       </div>
+      <span id="phoneHelpBlock" class="help-block">Cell phone with international country code</span>
     </div>
     <div class="checkbox">
       <label>

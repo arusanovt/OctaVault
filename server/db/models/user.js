@@ -1,5 +1,9 @@
+'use strict';
+
 var orm = require('orm');
 var qOrm = require('q-orm');
+var passwordHash = require('../../auth/auth.passwordhash');
+var verifyCode = require('../../auth/auth.codes');
 
 var enforce = orm.enforce;
 
@@ -9,9 +13,9 @@ module.exports = function(db, cb) {
     lastName: {type: 'text'},
     email: {type: 'text', unique: true, required: true},
     username: {type: 'text', unique: true, required: true, key: true}, //Primary key
-    password: {type: 'text', unique: true, required: true},
+    password: {type: 'text', required: true},
     pin: {type: 'text', required: true},
-    phone: {type: 'text', unique: true, required: true},
+    phone: {type: 'text', required: true},
     secure: {type: 'boolean', defaultValue: '1'},
 
     //timestamps
@@ -33,6 +37,39 @@ module.exports = function(db, cb) {
     resetPasswordSmsCodeUpdated: {type: 'date', time: true},
 
   }, {
+    hooks: {
+      beforeCreate: function(next) {
+        let _this = this;
+        _this.created = new Date();
+        _this.password = passwordHash.generate(_this.password);
+
+        if (_this.secure) {
+          _this.registerSmsCode = verifyCode.generateDigits(6);
+          _this.registerSmsCodeUpdated = new Date();
+        }
+
+        User.exists({email: _this.email}, function(err, exists) {
+          if (exists) {
+            let e = new Error('Email already exists');
+            e.property = 'email';
+            return next(e);
+          } else {
+            User.exists({username: _this.username}, function(err, exists) {
+              if (exists) {
+                let e = new Error('Username already taken');
+                e.property = 'username';
+                return next(e);
+              } else
+                return next();
+            });
+          }
+        });
+      },
+
+      beforeSave: function() {
+        this.updated = new Date();
+      },
+    },
     validations: {
       username: [
         enforce.unique('username already taken'),

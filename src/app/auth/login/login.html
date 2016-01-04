@@ -1,9 +1,9 @@
-<form name="form" novalidate ng-submit="form.$valid && ctrl.doLogin()">
+<form name="form" novalidate ng-submit="form.$valid && ctrl.doAuth('login',ctrl.login)">
   <fieldset>
     <legend>Log In</legend>
     <div class="form-group">
       <label for="username">Username</label>
-      <input type="text" required minlength="4" server-validation name="username" ng-model="ctrl.login.username" class="form-control" id="username" placeholder="Username">
+      <input type="text" username-validation="4" required minlength="4" server-validation name="username" ng-model="ctrl.login.username" class="form-control" id="username" placeholder="Username">
       <div ng-messages="form.username.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.username.$error.server}}</div>
@@ -11,7 +11,7 @@
     </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" minlength="6" server-validation required name="password" ng-model="ctrl.login.password" class="form-control" id="password" placeholder="Password">
+      <input type="password" server-validation required name="password" ng-model="ctrl.login.password" class="form-control" id="password" placeholder="Password">
       <div ng-messages="form.password.$error" role="alert">
         <div ng-messages-include="app/auth/validation-errors.html"></div>
         <div ng-message="server">{{form.password.$error.server}}</div>
@@ -19,6 +19,9 @@
       <div class="forgot-password">
         <a ui-sref="auth.resetPassword">Forgot password?</a>
       </div>
+    </div>
+    <div ng-messages="form.$error" role="alert">
+      <div ng-message="serverAll">{{form.$error.serverAll}}</div>
     </div>
     <div class="auth-footer">
       <button type="submit" class="btn btn-success">Log in</button>

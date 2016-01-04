@@ -35,7 +35,7 @@ if (app.get('env') === 'production') {
 }
 
 app.use(session(sess));
-app.use(csrf({cookie:true}));
+app.use(csrf({cookie:app.get('env') === 'development'}));
 app.use(function(req, res, next) {
   var token = req.csrfToken();
   res.cookie('x-csrf-token', token);
@@ -51,8 +51,7 @@ app.use('/api/wallet', wallet);
 app.use(function(err, req, res, next) {
   if (err.code !== 'EBADCSRFTOKEN') return next(err);
 
-  res.status(403);
-  res.send('form tampered with');
+  res.status(400).json({errors:[{message:'Token expired'}]});
 });
 
 /// catch 404 and forward to error handler
@@ -69,6 +68,7 @@ if (app.get('env') === 'development') {
     res.status(err.status || 500).json({
       message: err.message,
       error: err,
+      reason:err.reason,
       stack: err.stack,
     });
   });
@@ -79,6 +79,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500).json({
     message: err.message,
+    reason:err.reason,
     error: {},
   });
 });

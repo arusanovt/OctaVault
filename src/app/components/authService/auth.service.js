@@ -1,9 +1,23 @@
 export class AuthService {
-  constructor($http, $log, API_BASE) {
+  constructor($http, $log, vcRecaptchaService, API_BASE) {
     'ngInject';
     this.$http = $http;
     this.$log = $log;
     this.apiBase = API_BASE;
+    this.recaptchaResponse = ()=> vcRecaptchaService.getResponse();
+  }
+
+  _request(action, data, method = 'POST') {
+    var req = {
+      method: method,
+      url: `${this.apiBase}/auth/${action}`,
+      headers: {
+        'X-Recaptcha-Response': this.recaptchaResponse(),
+      },
+      data: data,
+    };
+
+    return $http(req);
   }
 
   user() {
