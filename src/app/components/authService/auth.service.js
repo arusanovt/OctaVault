@@ -17,7 +17,9 @@ export class AuthService {
       data: data,
     };
 
-    return $http(req);
+    return $http(req).then((response) => {
+      return response.data;
+    });
   }
 
   user() {
@@ -28,23 +30,29 @@ export class AuthService {
   }
 
   login(loginModel) {
-    return this.$http.post(`${this.apiBase}/auth/login`, loginModel)
+    return this._request('login', loginModel);
+  }
+
+  logout(loginModel) {
+    return this.$http.get(`${this.apiBase}/auth/logout`, loginModel)
       .then((response) => {
         return response.data;
       });
   }
 
   register(registerModel) {
-    return this.$http.post(`${this.apiBase}/auth/register`, registerModel)
-      .then((response) => {
-        return response.data;
-      });
+    return this._request('register', registerModel);
   }
 
   resetPassword(resetPasswordModel) {
-    return this.$http.post(`${this.apiBase}/auth/reset-password`, resetPasswordModel)
-      .then((response) => {
-        return response.data;
-      });
+    return this._request('reset-password', resetPasswordModel);
+  }
+
+  validateCode(code) {
+    return this._request('validate-code', code);
+  }
+
+  renewCode(codeType) {
+    return this._request('renew-code', {type:codeType});
   }
 }

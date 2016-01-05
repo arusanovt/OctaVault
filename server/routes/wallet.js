@@ -5,7 +5,11 @@ var authService = require('../auth/auth.service');
 var router = express.Router();
 
 //All routes here should be authorized and have user
-router.all('*', authService.authMiddleware, authService.userMiddleware);
+router.all('*',
+  authService.authMiddleware,
+  authService.userMiddleware,
+  authService.smsCodeMiddleware
+);
 
 router.get('/', function(req, res) {
   //TODO: list all transactions

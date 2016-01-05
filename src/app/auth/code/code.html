@@ -1,0 +1,36 @@
+<form name="form" novalidate ng-submit="form.$valid && ctrl.doAuth('validateCode',ctrl.code)">
+  <fieldset>
+    <div class="form-group">
+      <label for="code">SMS Code</label>
+      <input type="text"
+             number-validation
+             minlength="7"
+             maxlength="7"
+             server-validation
+             required
+             name="code"
+             ng-model="ctrl.code.code"
+             class="form-control"
+             id="code"
+             placeholder="SMS Code"
+             aria-describedby="codeHelpBlock"
+      >
+      <div ng-messages="form.code.$error" role="alert">
+        <div ng-messages-include="app/auth/validation-errors.html"></div>
+        <div ng-message="server">{{form.code.$error.server}}</div>
+        <div ng-message-exp="['minlength','maxlength']">
+          Code must be 7 characters long
+        </div>
+      </div>
+      <span id="codeHelpBlock" class="help-block">7 digits security code that was sent to your cell phone</span>
+    </div>
+    <div ng-messages="form.$error" role="alert">
+      <div ng-message="serverAll">{{form.$error.serverAll}}</div>
+    </div>
+    <div class="auth-footer">
+      <button type="submit" class="btn btn-success">Verify</button>
+      <span>or <a ng-click="ctrl.renewCode()">request new one</a></span>
+    </div>
+  </fieldset>
+</form>
+

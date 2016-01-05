@@ -19,7 +19,10 @@ function generateSalt(len) {
 
 function generateHash(algorithm, salt, password, iterations) {
   iterations = iterations || 1;
-  return algorithm + '$' + salt + '$' + iterations + '$' + crypto.pbkdf2Sync(password, salt, iterations * 1, 512, algorithm).toString('hex');
+  return algorithm + '$' +
+    salt + '$' +
+    iterations + '$' +
+    crypto.pbkdf2Sync(password, salt, iterations * 1, 512, algorithm).toString('hex');
 }
 
 function makeBackwardCompatible(hashedPassword) {
@@ -59,3 +62,5 @@ module.exports.isHashed = function(password) {
   if (!password) return false;
   return password.split('$').length == 4;
 };
+
+

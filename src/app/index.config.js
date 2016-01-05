@@ -18,7 +18,14 @@ export function config($logProvider, $locationProvider, $httpProvider) {
     return {
       responseError: function(rejection) {
         if (rejection.status === 401) {
-          $injector.get('$state').transitionTo('auth.login');
+          let state = $injector.get('$state');
+          if (rejection.data.reason === 'registration_code' || rejection.data.reason === 'login_code') {
+            //User haven't passed 2 step auth yet
+            state.go('auth.code', {type: rejection.data.reason});
+          } else {
+            state.go('auth.login');
+          }
+
           return rejection;
         }
 

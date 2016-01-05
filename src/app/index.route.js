@@ -39,6 +39,12 @@ export function routerConfig($stateProvider, $urlRouterProvider) {
       templateUrl: 'app/auth/reset-password/reset-password.html',
       controller: 'AuthController',
       controllerAs: 'ctrl',
+    })
+    .state('auth.code', {
+      url: '/code?type',
+      templateUrl: 'app/auth/code/code.html',
+      controller: 'AuthController',
+      controllerAs: 'ctrl',
     });
 
   $urlRouterProvider.otherwise('/wallet/');

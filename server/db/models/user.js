@@ -13,7 +13,7 @@ module.exports = function(db, cb) {
     lastName: {type: 'text'},
     email: {type: 'text', unique: true, required: true},
     username: {type: 'text', unique: true, required: true, key: true}, //Primary key
-    password: {type: 'text', required: true},
+    password: {type: 'text', required: true, size: 2048},
     pin: {type: 'text', required: true},
     phone: {type: 'text', required: true},
     secure: {type: 'boolean', defaultValue: '1'},
@@ -41,33 +41,106 @@ module.exports = function(db, cb) {
       beforeCreate: function(next) {
         let _this = this;
         _this.created = new Date();
-        _this.password = passwordHash.generate(_this.password);
+        _this.setPassword(_this.password, function(err) {
+          if (err) return next(e);
 
-        if (_this.secure) {
-          _this.registerSmsCode = verifyCode.generateDigits(6);
-          _this.registerSmsCodeUpdated = new Date();
-        }
-
-        User.exists({email: _this.email}, function(err, exists) {
-          if (exists) {
-            let e = new Error('Email already exists');
-            e.property = 'email';
-            return next(e);
-          } else {
-            User.exists({username: _this.username}, function(err, exists) {
-              if (exists) {
-                let e = new Error('Username already taken');
-                e.property = 'username';
-                return next(e);
-              } else
-                return next();
-            });
+          if (_this.secure) {
+            _this.registerSmsCode = verifyCode.generateDigits(6);
+            _this.registerSmsCodeUpdated = new Date();
           }
+
+          User.exists({email: _this.email}, function(err, exists) {
+            if (exists) {
+              let e = new Error('Email already exists');
+              e.property = 'email';
+              return next(e);
+            } else {
+              User.exists({username: _this.username}, function(err, exists) {
+                if (exists) {
+                  let e = new Error('Username already taken');
+                  e.property = 'username';
+                  return next(e);
+                } else
+                  return next();
+              });
+            }
+          });
         });
       },
 
       beforeSave: function() {
         this.updated = new Date();
+      },
+    },
+    methods: {
+      codeVerifyType: function(codeType) {
+        var verify = '';
+        if (codeType === 'registration_code') {
+          verify = 'register';
+        } else if (codeType === 'login_code') {
+          verify = 'login';
+        }
+
+        return verify;
+      },
+
+      isCodeValid: function(codeType, code, expiration) {
+        var verify = this.codeVerifyType(codeType);
+        return (this[verify + 'SmsCode'] === code) && !this.isCodeExpired(codeType, expiration);
+      },
+
+      isCodeExpired: function(codeType, expiration) {
+        var verify = this.codeVerifyType(codeType);
+        return ((new Date() - this[verify + 'SmsCodeUpdated']) > expiration);
+      },
+
+      clearCode: function(codeType) {
+        var verify = this.codeVerifyType(codeType);
+        this[verify + 'SmsCode'] = null;
+        this[verify + 'SmsCodeUpdated'] = null;
+        return this.qSave();
+      },
+
+      renewCode: function(codeType) {
+        var verify = this.codeVerifyType(codeType);
+        this[verify + 'SmsCode'] = verifyCode.generateDigits(6);
+        this[verify + 'SmsCodeUpdated'] = new Date();
+        console.log(`generated new ${verify} code for ${this.phone}:'${this[verify + 'SmsCode']}'`);
+        return this.qSave().then(()=>this[verify + 'SmsCode']);
+      },
+
+      setPassword: function(newPassword, cb) {
+        var checks = new enforce.Enforce();
+        checks
+          .add(
+            'password',
+            enforce.security.password(`password should contain lowercase letters, uppercase letters, numbers, special characters and have minimal length of 6`)
+          );
+        checks.check({
+          password: newPassword,
+        }, (err)=> {
+          if (err) return cb(err);
+          this.password = passwordHash.generate(newPassword);
+          cb();
+        });
+      },
+
+      isSecureIp: function(ip) {
+        return UserTrustedIp
+          .qOne({username: this.username, ip: ip})
+          .then(exists=> !!exists);
+      },
+
+      setSecureIp: function(ip) {
+        return this.isSecureIp(ip)
+          .then(secure=> {
+            if (!secure) {
+              return UserTrustedIp.qCreate({
+                ip: ip,
+                username: this.username,
+              });
+            }
+          });
       },
     },
     validations: {
@@ -79,20 +152,21 @@ module.exports = function(db, cb) {
         enforce.unique('email already exists'),
         enforce.patterns.email('malformed email'),
       ],
-      password: [
-        enforce.security.password(`password should contain lowercase letters, uppercase letters, numbers,
-         special characters and have minimal length of 6`),
-      ],
     },
   });
 
   var UserTrustedIp = db.qDefine('UserTrustedIp', {
-    ip: {type: 'text', required: true},
-
-    //timestamps
+    ip: {type: 'text', required: true, unique: 'user-ip', key: true},
+    username: {type: 'text', required: true, unique: 'user-ip', key: true},
     created: {type: 'date', time: true},
+  }, {
+    hooks: {
+      beforeCreate: function(next) {
+        this.created = new Date();
+        next();
+      },
+    },
   });
 
-  UserTrustedIp.qHasOne('owner', User, {reverse: 'trustedIp'});
   return cb();
 };

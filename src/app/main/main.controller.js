@@ -1,5 +1,6 @@
 export class MainController {
-  constructor() {
+  constructor(AuthService) {
     'ngInject';
+    this.logout = AuthService.logout.bind(AuthService);
   }
 }

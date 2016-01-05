@@ -1,7 +1,14 @@
 'use strict';
 export class AuthController {
-  constructor($scope, $state, AuthService) {
+  constructor($scope, $state, $rootScope, $stateParams, AuthService) {
     'ngInject';
+
+    $rootScope.$on('$stateNotFound',
+      function(event, unfoundState, fromState, fromParams) {
+        console.log(unfoundState.to); // "lazy.state"
+        console.log(unfoundState.toParams); // {a:1, b:2}
+        console.log(unfoundState.options); // {inherit:false} + default options
+      });
 
     this.$scope = $scope;
     this.$state = $state;
@@ -26,6 +33,19 @@ export class AuthController {
       username: '',
       email: '',
     };
+
+    this.code = {
+      type: $stateParams.type,
+      code: '',
+      refreshMessage: '',
+    };
+  }
+
+  renewCode() {
+    //Ask server for new code
+    this.authService.renewCode(this.code.type)
+      .then((responseData)=> this.code.refreshMessage = 'New code sent')
+      .catch((err)=> this.code.refreshMessage = `Interval from last SMS isn't passed.`);
   }
 
   _mapValidationErrors(errorResponse) {
@@ -51,7 +71,7 @@ export class AuthController {
     this.authService[method](data)
       .then((responseData)=> {
         console.log(method, responseData);
-        this.$state.transitionTo(goTo);
+        this.$state.go(goTo);
       })
       .catch((err)=>this._mapValidationErrors(err));
   }
