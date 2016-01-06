@@ -5,6 +5,7 @@ var config = require('../../config');
 var sms = require('../sms/sms-verify');
 var authService = require('../auth/auth.service');
 var passwordHash = require('../auth/auth.passwordhash');
+var mailer = require('../email/mailer.service');
 var router = express.Router();
 
 function formatError(error) {
@@ -23,38 +24,41 @@ function formatError(error) {
   };
 }
 
+function loginUser(user, req, res) {
+  req.session.username = user.username;
+  req.session.loginIp = req.ip;
+  if (user.secure) {
+    //Check login ip
+    user.isSecureIp(req.ip).then(secure=> {
+      if (!secure) {
+        //Update login code and deny access
+        let err = new Error('Unauthorized');
+        err.reason = 'login_code';
+        err.status = 401;
+        if (user.isCodeExpired('login_code', config.smsCodeValidInterval)) {
+          return user.renewCode('login_code')
+            .then((code)=>sms.sendSmsCode(user.phone, code))
+            .then(()=> {
+              res.json({confirmationCodeRequired: true, type: 'login_code'});
+            });
+        } else {
+          //Code was already sent before and still valid
+          res.json({confirmationCodeRequired: true});
+        }
+      } else {
+        res.json({confirmationCodeRequired: false});
+      }
+    });
+  } else {
+    res.json({confirmationCodeRequired: false});
+  }
+}
+
 router.post('/login', function(req, res) {
   req.models.User.qGet(req.body.username)
     .then((user)=> {
       if (passwordHash.verify(req.body.password, user.password)) {
-        //TODO: check security and IP table
-        req.session.username = user.username;
-        req.session.loginIp = req.ip;
-        if (user.secure) {
-          //Check login ip
-          user.isSecureIp(req.ip).then(secure=> {
-            if (!secure) {
-              //Update login code and deny access
-              let err = new Error('Unauthorized');
-              err.reason = 'login_code';
-              err.status = 401;
-              if (user.isCodeExpired('login_code', config.smsCodeValidInterval)) {
-                return user.renewCode('login_code')
-                  .then((code)=>sms.sendSmsCode(user.phone, code))
-                  .then(()=> {
-                    res.json({confirmationCodeRequired: true});
-                  });
-              } else {
-                //Code was already sent before and still valid
-                res.json({confirmationCodeRequired: true});
-              }
-            } else {
-              res.json({confirmationCodeRequired: false});
-            }
-          });
-        } else {
-          res.json({confirmationCodeRequired: false});
-        }
+        loginUser(user, req, res);
       } else {
         throw new Error('Password not matched');
       }
@@ -75,7 +79,7 @@ router.post('/register', function(req, res) {
       req.session.username = user.username;
       req.session.loginIp = req.ip;
       return (user.secure ? Promise.all([sms.sendSmsCode(user.phone, user.registerSmsCode), user.setSecureIp(req.ip)]) : Promise.resolve())
-        .then(()=>res.json({confirmationCodeRequired: user.secure}));
+        .then(()=>res.json({confirmationCodeRequired: user.secure, type: 'registration_code'}));
     })
     .catch(err=> {
       res.status(400).json(formatError(err));
@@ -128,7 +132,72 @@ router.post('/renew-code', authService.authMiddleware, authService.userMiddlewar
 });
 
 router.post('/reset-password', function(req, res) {
-  res.json({ok: true, data: req.body});
+  Promise.resolve()
+    .then(()=> {
+      if (!req.body.email || !req.body.username) throw new Error('Invalid username or email');
+
+      //Find user in db
+      return req.models.User.qOne({email: req.body.email, username: req.body.username});
+    })
+    .then(user=> {
+      if (user) return user.updatePasswordResetLink();
+      else throw new Error('Invalid username');
+    })
+    .then(user=> mailer.sendMail(user.email, 'reset-password', {link: `/reset-password-complete?code=${user.resetPasswordLink}`}))
+    .then(()=>res.json({status: 'sent'}))
+    .catch(err=> {
+      err.property = 'username';
+      res.status(400).json(formatError(err));
+    });
+});
+
+router.post('/reset-password-complete', function(req, res) {
+  Promise.resolve()
+    .then(()=> {
+      if (!req.body.password || !req.body.username || !req.body.code) throw new Error('Invalid username');
+
+      //Find user in db
+      return req.models.User.qOne({resetPasswordLink: req.body.code, username: req.body.username});
+    })
+    .then(user=> {
+      if (user) {
+        if ((new Date() - user.resetPasswordLinkUpdated) > config.passwordResetValidInterval) {
+          throw new Error('Link expired');
+        }
+
+        if (user.secure) {
+          //Store new temp password in session
+          req.session.passwordReset = req.body.password;
+
+          //Generate a code
+          //TODO: Deal with code updates
+          return user.renewCode('reset_password_code').then(()=> {
+            return {confirmationCodeRequired: true, type: 'reset_password_code'};
+          });
+        } else {
+          //Set new password and login
+          return new Promise((resolve, reject)=> {
+            user.setPassword(req.body.password, (err)=> {
+              if (err) return reject(err);
+
+              //Remove link and save user
+              user.resetPasswordLink = null;
+              user.resetPasswordLinkUpdated = null;
+              return user.qSave(resolve, reject)
+                .then(()=> loginUser(user, req, res)) //Log in user
+                .then(()=> {
+                  return {confirmationCodeRequired: false};
+                });
+            });
+          });
+        }
+      } else throw new Error('Invalid username');
+    })
+    .then((status)=>res.json(status))
+    .catch(err=> {
+      err.property = 'username';
+      res.status(400).json(formatError(err));
+    });
 });
 
 router.get('/logout', authService.authMiddleware, authService.userMiddleware, function(req, res) {

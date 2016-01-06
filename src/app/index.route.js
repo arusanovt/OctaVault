@@ -40,6 +40,12 @@ export function routerConfig($stateProvider, $urlRouterProvider) {
       controller: 'AuthController',
       controllerAs: 'ctrl',
     })
+    .state('auth.resetPasswordComplete', {
+      url: '/reset-password-complete?code',
+      templateUrl: 'app/auth/reset-password/reset-password-complete.html',
+      controller: 'AuthController',
+      controllerAs: 'ctrl',
+    })
     .state('auth.code', {
       url: '/code?type',
       templateUrl: 'app/auth/code/code.html',

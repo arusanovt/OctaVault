@@ -1,15 +1,7 @@
 'use strict';
 export class AuthController {
-  constructor($scope, $state, $rootScope, $stateParams, AuthService) {
+  constructor($scope, $state, $stateParams, AuthService) {
     'ngInject';
-
-    $rootScope.$on('$stateNotFound',
-      function(event, unfoundState, fromState, fromParams) {
-        console.log(unfoundState.to); // "lazy.state"
-        console.log(unfoundState.toParams); // {a:1, b:2}
-        console.log(unfoundState.options); // {inherit:false} + default options
-      });
-
     this.$scope = $scope;
     this.$state = $state;
     this.authService = AuthService;
@@ -32,6 +24,13 @@ export class AuthController {
     this.resetPassword = {
       username: '',
       email: '',
+      sent: false,
+    };
+
+    this.resetPasswordComplete = {
+      username: '',
+      password: '',
+      code: $stateParams.code,
     };
 
     this.code = {
@@ -65,13 +64,25 @@ export class AuthController {
     }
   }
 
+  doResetPassword() {
+    this.authService.resetPassword(this.resetPassword)
+      .then((responseData)=> {
+        this.resetPassword.sent = true;
+      })
+      .catch((err)=>this._mapValidationErrors(err));
+  }
+
   doAuth(method, data, goTo = 'wallet.list') {
     console.log(method, data);
 
     this.authService[method](data)
       .then((responseData)=> {
         console.log(method, responseData);
-        this.$state.go(goTo);
+        if (responseData.confirmationCodeRequired) {
+          this.$state.go('auth.code', {type: responseData.type});
+        } else {
+          this.$state.go(goTo);
+        }
       })
       .catch((err)=>this._mapValidationErrors(err));
   }

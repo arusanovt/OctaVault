@@ -4,7 +4,13 @@ export class AuthService {
     this.$http = $http;
     this.$log = $log;
     this.apiBase = API_BASE;
-    this.recaptchaResponse = ()=> vcRecaptchaService.getResponse();
+    this.recaptchaResponse = ()=> {
+      try {
+        return vcRecaptchaService.getResponse();
+      } catch (e) {
+        return '';
+      }
+    }
   }
 
   _request(action, data, method = 'POST') {
@@ -17,7 +23,7 @@ export class AuthService {
       data: data,
     };
 
-    return $http(req).then((response) => {
+    return this.$http(req).then((response) => {
       return response.data;
     });
   }
@@ -48,11 +54,15 @@ export class AuthService {
     return this._request('reset-password', resetPasswordModel);
   }
 
+  resetPasswordComplete(resetPasswordModel) {
+    return this._request('reset-password-complete', resetPasswordModel);
+  }
+
   validateCode(code) {
     return this._request('validate-code', code);
   }
 
   renewCode(codeType) {
-    return this._request('renew-code', {type:codeType});
+    return this._request('renew-code', {type: codeType});
   }
 }

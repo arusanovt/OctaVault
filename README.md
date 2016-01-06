@@ -7,8 +7,8 @@ Web App for wallet management
 - [x] Validation server/client
 - [x] SMS Code verification
 - [x] Secure IP table for user
-- [ ] Sending email
-- [ ] Password reset
+- [x] Sending email
+- [x] Password reset (secure mode sms confirmation isn't done)
 - [ ] Sending real SMS
 - [ ] Wallet API integration
 - [ ] Adding wallet addresses

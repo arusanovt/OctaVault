@@ -4,6 +4,7 @@ var orm = require('orm');
 var qOrm = require('q-orm');
 var passwordHash = require('../../auth/auth.passwordhash');
 var verifyCode = require('../../auth/auth.codes');
+var uuid = require('node-uuid');
 
 var enforce = orm.enforce;
 
@@ -79,6 +80,8 @@ module.exports = function(db, cb) {
           verify = 'register';
         } else if (codeType === 'login_code') {
           verify = 'login';
+        } else if (codeType === 'reset_password_code') {
+          verify = 'resetPassword';
         }
 
         return verify;
@@ -141,6 +144,12 @@ module.exports = function(db, cb) {
               });
             }
           });
+      },
+
+      updatePasswordResetLink: function() {
+        this.resetPasswordLink = uuid.v4();
+        this.resetPasswordLinkUpdated = new Date();
+        return this.qSave();
       },
     },
     validations: {
