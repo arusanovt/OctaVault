@@ -92,6 +92,7 @@
     <div ng-include="'app/auth/recaptcha.html'"></div>
     <div ng-messages="form.$error" role="alert">
       <div ng-message="serverAll">{{form.$error.serverAll}}</div>
+      <div ng-message="recaptcha">Recaptcha is not valid</div>
     </div>
     <div class="auth-footer">
       <button type="submit" class="btn btn-success">Register</button>

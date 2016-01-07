@@ -42,9 +42,7 @@ module.exports = function(db, cb) {
       beforeCreate: function(next) {
         let _this = this;
         _this.created = new Date();
-        _this.setPassword(_this.password, function(err) {
-          if (err) return next(e);
-
+        _this.setPassword(_this.password).then(()=> {
           if (_this.secure) {
             _this.registerSmsCode = verifyCode.generateDigits(6);
             _this.registerSmsCodeUpdated = new Date();
@@ -66,7 +64,7 @@ module.exports = function(db, cb) {
               });
             }
           });
-        });
+        }).catch(next);
       },
 
       beforeSave: function() {
@@ -108,24 +106,26 @@ module.exports = function(db, cb) {
         var verify = this.codeVerifyType(codeType);
         this[verify + 'SmsCode'] = verifyCode.generateDigits(6);
         this[verify + 'SmsCodeUpdated'] = new Date();
-        console.log(`generated new ${verify} code for ${this.phone}:'${this[verify + 'SmsCode']}'`);
         return this.qSave().then(()=>this[verify + 'SmsCode']);
       },
 
-      setPassword: function(newPassword, cb) {
-        var checks = new enforce.Enforce();
-        checks
-          .add(
-            'password',
-            enforce.security.password(`password should contain lowercase letters, uppercase letters, numbers, special characters and have minimal length of 6`)
-          );
-        checks.check({
-          password: newPassword,
-        }, (err)=> {
-          if (err) return cb(err);
-          this.password = passwordHash.generate(newPassword);
-          cb();
+      setPassword: function(newPassword) {
+        return new Promise((resolve, reject)=> {
+          var checks = new enforce.Enforce();
+          checks
+            .add(
+              'password',
+              enforce.security.password(`password should contain lowercase letters, uppercase letters, numbers, special characters and have minimal length of 6`)
+            );
+          checks.check({
+            password: newPassword,
+          }, (err)=> {
+            if (err) return reject(err);
+            this.password = passwordHash.generate(newPassword);
+            resolve();
+          });
         });
+
       },
 
       isSecureIp: function(ip) {

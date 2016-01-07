@@ -2,10 +2,22 @@ var common = {
   sessionSecret: 'YccQCzlZxWp5tHmXj0veYbo16r2Oo7ADWT1EWGLTbN6WPAuoGN',
   db: 'mysql://root:1@localhost:3306/octa-dev?debug=true',
   proxy: 'http://127.0.0.1:4000',
+
+  //Recaptcha
+  recaptchaSecret: 'xxxxxx-xxxxx',
+
+  //SMS config
   smsCodeValidInterval: 1000 * 60 * 30,//1/2 hour
+  smsFrom:'xxxxxx',
+  smsNexmoKey:'xxxxxx',
+  smsNexmoSecret:'xxxxxx',
+
+  passwordResetValidInterval: 1000 * 60 * 120,// 2 hours
+
+  //Email config
   emailTransport: 'smtps://user%40gmail.com:pass@smtp.gmail.com',//Sample
-  mailFrom:'mailer@user.com',
-  base:'http://localhost:3000', //Base address for web app (needed in email links)
+  mailFrom: 'mailer@user.com',
+  base: 'http://localhost:3000',
 };
 
 module.exports = require('lodash').defaults(common, require(`./config.${process.env.NODE_ENV || 'development'}`));

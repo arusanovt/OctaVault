@@ -1,4 +1,5 @@
 'use strict';
+var log = require('../log');
 var nodemailer = require('nodemailer');
 var htmlToText = require('nodemailer-html-to-text').htmlToText;
 var config = require('../../config');
@@ -16,7 +17,7 @@ exports.sendMail = function(to, template, data) {
       return url.resolve(data.base, relativeUrl);
     };
 
-    console.log('sending email to', to, 'template', template, 'data', JSON.stringify(data));
+    log.info(`sending email to ${to} template ${template} data ${JSON.stringify(data)}`);
     swig.renderFile(path.join(__dirname, `./templates/${template}.html`), data, function(err, output) {
       if (err) {
         return reject(err);

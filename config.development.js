@@ -6,4 +6,8 @@ module.exports = {
   emailTransport: pickupTransport({
     directory: './.tmp/',
   }),
+  smsSender: function(recipientPhoneNumber, text) {
+    //Dummy sms sender
+    console.log(`Dummy send sms to ${recipientPhoneNumber} with text'${text}'`);
+  },
 };

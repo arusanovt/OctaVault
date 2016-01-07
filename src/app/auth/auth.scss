@@ -1,3 +1,4 @@
+
 .auth-box {
   margin: auto;
   padding: 2em;
@@ -19,4 +20,14 @@
 .forgot-password {
   margin-top: 0.3em;
   text-align: right;
+}
+
+//View animations
+.auth-box {
+  &.ng-enter {
+    @include slideInDown($duration: 200ms);
+  }
+
+  &.ng-leave {
+  }
 }

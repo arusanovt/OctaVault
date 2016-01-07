@@ -1,7 +1,19 @@
 'use strict';
+var log = require('../log');
 
-exports.authMiddleware = function(req, res, next) {
+exports.authenticationMiddleware = function(req, res, next) {
   if (req.session.username && req.session.loginIp === req.ip) {
+    return next();
+  }
+
+  var err = new Error('Unauthorized');
+  err.status = 401;
+  return next(err);
+};
+
+exports.authorizationMiddleware = function(req, res, next) {
+  //Check if user is authorized to access
+  if (req.session.authorized) {
     return next();
   }
 
@@ -30,7 +42,7 @@ exports.smsCodeMiddleware = function(req, res, next) {
 
     if (user.loginSmsCode) {
       //Login isn't confirmed
-      console.log('required login code', user.loginSmsCode);
+      log.info(`required login code ${user.loginSmsCode} for user ${user.username}`);
       let err = new Error('Login code required');
       err.reason = 'login_code';
       err.status = 401;
@@ -39,7 +51,7 @@ exports.smsCodeMiddleware = function(req, res, next) {
 
     if (user.registerSmsCode) {
       //Register isn't confirmed
-      console.log('required registration code', user.registerSmsCode);
+      log.info(`required registration code ${user.loginSmsCode} for user ${user.username}`);
       let err = new Error('Registration code required');
       err.reason = 'registration_code';
       err.status = 401;

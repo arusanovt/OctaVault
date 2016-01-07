@@ -6,7 +6,8 @@ var router = express.Router();
 
 //All routes here should be authorized and have user
 router.all('*',
-  authService.authMiddleware,
+  authService.authenticationMiddleware,
+  authService.authorizationMiddleware,
   authService.userMiddleware,
   authService.smsCodeMiddleware
 );
