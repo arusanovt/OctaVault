@@ -15,9 +15,13 @@ module.exports = function(req, res, next) {
     })
     .then(()=>next())
     .catch(_=> {
-      var err = new Error('Bad recaptcha');
-      err.property = 'recaptcha';
-      err.status = 400;
-      return next(err);
+      return res.status(400).json({
+        errors: [{
+          message: 'Invalid recaptcha',
+          property: 'recaptcha',
+          type: 'validation',
+        },
+        ],
+      });
     });
 };
