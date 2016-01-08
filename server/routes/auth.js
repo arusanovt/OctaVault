@@ -35,9 +35,6 @@ function loginUser(user, req) {
       user.isSecureIp(req.ip).then(secure=> {
         if (!secure) {
           //Update login code and deny access
-          let err = new Error('Unauthorized');
-          err.reason = 'login_code';
-          err.status = 401;
           if (user.isCodeExpired('login_code', config.smsCodeValidInterval)) {
             log.info(`user ${user.username} login ip ${req.ip} is not secure. generating new code`);
             return user.renewCode('login_code')

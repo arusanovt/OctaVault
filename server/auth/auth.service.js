@@ -6,6 +6,7 @@ exports.authenticationMiddleware = function(req, res, next) {
     return next();
   }
 
+  log.error('No session user');
   var err = new Error('Unauthorized');
   err.status = 401;
   return next(err);
@@ -17,6 +18,7 @@ exports.authorizationMiddleware = function(req, res, next) {
     return next();
   }
 
+  log.error('No session authorization');
   var err = new Error('Unauthorized');
   err.status = 401;
   return next(err);
@@ -24,13 +26,15 @@ exports.authorizationMiddleware = function(req, res, next) {
 
 exports.userMiddleware = function(req, res, next) {
   //Provide user to request
+  log.info(`getting user ${req.session.username}`);
   req.models.User.qGet(req.session.username)
     .then(user=> {
       req.user = user;
       next();
     })
-    .catch(_=> {
-      var err = new Error('Unauthorized');
+    .catch(err => {
+      log.error('No user');
+      err = new Error('Unauthorized');
       err.status = 401;
       return next(err);
     });

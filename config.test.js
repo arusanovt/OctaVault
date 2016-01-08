@@ -2,7 +2,7 @@
 var pickupTransport = require('nodemailer-pickup-transport');
 
 module.exports = {
-  db: 'mysql://root:1@localhost:3306/octa-test?debug=true',
+  db: 'mysql://root:1@localhost:3306/octa-test',
   //Override base settings for development
   emailTransport: pickupTransport({
     directory: './.tmp/',
