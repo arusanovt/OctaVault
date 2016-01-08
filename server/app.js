@@ -46,7 +46,6 @@ app.use(require('./db/middleware'));
 app.use('/api/auth', auth);
 app.use('/api/wallet', wallet);
 
-
 /// error handlers
 app.use(function(err, req, res, next) {
   if (err.code !== 'EBADCSRFTOKEN') return next(err);

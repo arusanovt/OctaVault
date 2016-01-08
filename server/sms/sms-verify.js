@@ -1,5 +1,6 @@
 'use strict';
 var config = require('../../config');
+var log = require('../log');
 
 function nexmoSender() {
   var nexmo = require('easynexmo');

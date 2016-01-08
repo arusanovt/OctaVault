@@ -13,8 +13,7 @@ module.exports = qOrm.qExpress(config.db, {
 
       models.User = db.models.User;
       models.UserTrustedIp = db.models.UserTrustedIp;
-
-      db.sync(next);
+      next();
     });
   },
 });

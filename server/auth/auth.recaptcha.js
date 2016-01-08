@@ -5,6 +5,8 @@ var config = require('../../config');
  Validate recaptcha
  */
 module.exports = function(req, res, next) {
+  if (req.app.get('env') === 'test') return next();//No capctha in tests
+
   Promise.resolve(req.headers['x-recaptcha-response'])
     .then(recaptchaResponse=> {
       return new Promise(function(resolve, reject) {
