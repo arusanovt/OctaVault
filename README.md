@@ -12,7 +12,7 @@ Web App for wallet management
 - [x] Sending real SMS
 - [x] Recaptcha integration
 - [x] Log everything
-- [ ] Wallet API integration
+- [x] Wallet API integration
 - [ ] Adding wallet addresses
 - [ ] Wallet UI
 - [ ] Unit tests for DB models
