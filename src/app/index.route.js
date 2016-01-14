@@ -6,7 +6,7 @@ export function routerConfig($stateProvider, $urlRouterProvider) {
       abstract: true,
       template: '<ui-view>',
       resolve: {
-        user: function(AuthService) {
+        user: function (AuthService) {
           'ngInject';
           return AuthService.user();
         },
@@ -17,6 +17,31 @@ export function routerConfig($stateProvider, $urlRouterProvider) {
       templateUrl: 'app/main/main.html',
       controller: 'MainController',
       controllerAs: 'ctrl',
+      redirectTo:'wallet.list.transactions',
+    })
+    .state('wallet.list.transactions', {
+      url: 'transactions',
+      templateUrl: 'app/main/transactions/transactions.html',
+      controller: 'TransactionController',
+      controllerAs: 'ctrl',
+      resolve: {
+        transactions: function (WalletService) {
+          'ngInject';
+          return WalletService.transactions();
+        },
+      }
+    })
+    .state('wallet.list.addresses', {
+      url: 'addresses',
+      templateUrl: 'app/main/addresses/addresses.html',
+      controller: 'AddressesController',
+      controllerAs: 'ctrl',
+      resolve: {
+        addresses: function (WalletService) {
+          'ngInject';
+          return WalletService.addresses();
+        },
+      }
     })
     .state('auth', {
       abstract: true,

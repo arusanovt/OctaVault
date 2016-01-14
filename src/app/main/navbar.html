@@ -1,0 +1,16 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" ui-sref="wallet.list">OctaVault</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li ui-sref-active="active"><a href="#" ui-sref="wallet.list.transactions">Transactions</a></li>
+      <li ui-sref-active="active"><a href="#" ui-sref="wallet.list.addresses">Addresses</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><p class="navbar-text">Balance: {{ctrl.user.balance}}</p>
+      </li>
+      <li><a href="#" ng-click="ctrl.logout()">Logout</a></li>
+    </ul>
+  </div>
+</nav>

@@ -12,14 +12,42 @@ router.all('*',
   authService.smsCodeMiddleware
 );
 
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
   //TODO: list all transactions
   res.json([]);
 });
 
-router.get('/@me', function(req, res) {
-  //TODO: user details
-  res.json({username: req.user.username});
+router.get('/@me', function (req, res) {
+  Promise.resolve(req.user.username)
+    .then(username=> {
+      return req.models.Transaction.getUserBalance(username);
+    })
+    .then(balance => res.json({balance:balance}))
+    .catch(err=> {
+      res.status(400).json({error: err});
+    })
+});
+
+router.get('/addresses', function (req, res) {
+  Promise.resolve(req.user.username)
+    .then(username=> {
+      return req.models.UserAddress.getAddressBalance(username);
+    })
+    .then(addresses => res.json(addresses))
+    .catch(err=> {
+      res.status(400).json({error: err});
+    })
+});
+
+router.get('/transactions', function (req, res) {
+  Promise.resolve(req.user.username)
+    .then(username=> {
+      return req.models.Transaction.getUserTransactions(username);
+    })
+    .then(transactions => res.json(transactions))
+    .catch(err=> {
+      res.status(400).json({error: err});
+    })
 });
 
 module.exports = router;

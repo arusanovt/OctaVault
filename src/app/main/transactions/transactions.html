@@ -1,0 +1,8 @@
+<table class="table table-bordered table-hover transaction-table" ng-table="ctrl.transactionTable">
+  <tr ng-repeat="t in $data">
+    <td data-title="'From'" sortable="'from'">{{t.from}}</td>
+    <td data-title="'To'" sortable="'to'">{{t.to}}</td>
+    <td data-title="'Diff'" sortable="'diff'" ng-class="{positive:t.diff>0,negative:t.diff<0}">{{t.diff}}</td>
+    <td data-title="'Timestamp'" sortable="'created'">{{t.created|date:'short'}}</td>
+  </tr>
+</table>

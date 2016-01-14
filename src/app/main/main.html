@@ -1,5 +1,6 @@
-<div class="container">
-  Logged in!
-  <button ng-click="ctrl.logout()" class="btn btn-danger">Log Out</button>
+<div ng-include="'app/main/navbar.html'"></div>
+<div class="container main">
+  <ui-view></ui-view>
+
 </div>
 

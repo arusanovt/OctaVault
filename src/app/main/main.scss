@@ -1,0 +1,25 @@
+.main {
+  padding-top: 5em;
+  padding-bottom: 5em;
+  background: #fff;
+  min-height: 100vh;
+}
+
+.table {
+  margin: 2em auto;
+}
+
+.transaction-table {
+  .positive {
+    color: $brand-success;
+  }
+  .negative {
+    color: $brand-danger;
+  }
+}
+
+.addresses-table {
+  & + [ng-table-pagination] {
+    display: none;
+  }
+}

@@ -1,6 +1,7 @@
 Web App for wallet management
 
 ## TODO
+
 - [x] Login/registration UI
 - [x] Registration
 - [x] Login
@@ -12,9 +13,12 @@ Web App for wallet management
 - [x] Sending real SMS
 - [x] Recaptcha integration
 - [x] Log everything
-- [x] Wallet API integration
-- [ ] Adding wallet addresses
-- [ ] Wallet UI
+- [x] Transaction in DB
+- [x] Transaction UI
+- [x] Summary balance for all transactions
+- [ ] Wallet API integration
+- [~] Adding wallet addresses
+- [x] Wallet UI
 - [ ] Unit tests for DB models
 - [ ] Unit tests for UI
 - [ ] E2E UI tests

@@ -8,7 +8,7 @@ var uuid = require('node-uuid');
 
 var enforce = orm.enforce;
 
-module.exports = function(db, cb) {
+module.exports = function (db, cb) {
   var User = db.qDefine('User', {
     firstName: {type: 'text'},
     lastName: {type: 'text'},
@@ -39,7 +39,7 @@ module.exports = function(db, cb) {
 
   }, {
     hooks: {
-      beforeCreate: function(next) {
+      beforeCreate: function (next) {
         let _this = this;
         _this.created = new Date();
         _this.setPassword(_this.password).then(()=> {
@@ -48,13 +48,13 @@ module.exports = function(db, cb) {
             _this.registerSmsCodeUpdated = new Date();
           }
 
-          User.exists({email: _this.email}, function(err, exists) {
+          User.exists({email: _this.email}, function (err, exists) {
             if (exists) {
               let e = new Error('Email already exists');
               e.property = 'email';
               return next(e);
             } else {
-              User.exists({username: _this.username}, function(err, exists) {
+              User.exists({username: _this.username}, function (err, exists) {
                 if (exists) {
                   let e = new Error('Username already taken');
                   e.property = 'username';
@@ -67,12 +67,12 @@ module.exports = function(db, cb) {
         }).catch(next);
       },
 
-      beforeSave: function() {
+      beforeSave: function () {
         this.updated = new Date();
       },
     },
     methods: {
-      codeVerifyType: function(codeType) {
+      codeVerifyType: function (codeType) {
         var verify = '';
         if (codeType === 'registration_code') {
           verify = 'register';
@@ -85,31 +85,31 @@ module.exports = function(db, cb) {
         return verify;
       },
 
-      isCodeValid: function(codeType, code, expiration) {
+      isCodeValid: function (codeType, code, expiration) {
         var verify = this.codeVerifyType(codeType);
         return (this[verify + 'SmsCode'] === code) && !this.isCodeExpired(codeType, expiration);
       },
 
-      isCodeExpired: function(codeType, expiration) {
+      isCodeExpired: function (codeType, expiration) {
         var verify = this.codeVerifyType(codeType);
         return ((new Date() - this[verify + 'SmsCodeUpdated']) > expiration);
       },
 
-      clearCode: function(codeType) {
+      clearCode: function (codeType) {
         var verify = this.codeVerifyType(codeType);
         this[verify + 'SmsCode'] = null;
         this[verify + 'SmsCodeUpdated'] = null;
         return this.qSave();
       },
 
-      renewCode: function(codeType) {
+      renewCode: function (codeType) {
         var verify = this.codeVerifyType(codeType);
         this[verify + 'SmsCode'] = verifyCode.generateDigits(6);
         this[verify + 'SmsCodeUpdated'] = new Date();
         return this.qSave().then(()=>this[verify + 'SmsCode']);
       },
 
-      setPassword: function(newPassword) {
+      setPassword: function (newPassword) {
         return new Promise((resolve, reject)=> {
           var checks = new enforce.Enforce();
           checks
@@ -128,13 +128,13 @@ module.exports = function(db, cb) {
 
       },
 
-      isSecureIp: function(ip) {
+      isSecureIp: function (ip) {
         return UserTrustedIp
           .qOne({username: this.username, ip: ip})
           .then(exists=> !!exists);
       },
 
-      setSecureIp: function(ip) {
+      setSecureIp: function (ip) {
         return this.isSecureIp(ip)
           .then(secure=> {
             if (!secure) {
@@ -146,7 +146,7 @@ module.exports = function(db, cb) {
           });
       },
 
-      updatePasswordResetLink: function() {
+      updatePasswordResetLink: function () {
         this.resetPasswordLink = uuid.v4();
         this.resetPasswordLinkUpdated = new Date();
         return this.qSave();
@@ -170,12 +170,76 @@ module.exports = function(db, cb) {
     created: {type: 'date', time: true},
   }, {
     hooks: {
-      beforeCreate: function(next) {
+      beforeCreate: function (next) {
         this.created = new Date();
         next();
       },
     },
   });
+
+  var UserAddress = db.qDefine('UserAddress', {
+    address: {type: 'text', required: true, unique: 'user-address', key: true},
+    username: {type: 'text', required: true, unique: 'user-address', key: true},
+    created: {type: 'date', time: true},
+  }, {
+    hooks: {
+      beforeCreate: function (next) {
+        this.created = new Date();
+        next();
+      },
+    },
+  });
+
+  UserAddress.getAddressBalance = function (username) {
+    return new Promise(function (resolve, reject) {
+      var query = 'select u.address, u.created, sum(CASE WHEN t.`from` = u.address THEN -t.amount ELSE t.amount END) as balance '+
+      'from Transaction as t inner join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ? group by u.address order by u.created desc';
+      db.driver.db.query(query, [username], function (err, res) {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
+  };
+
+  var Transaction = db.qDefine('Transaction', {
+    id: {type: 'text', required: true, unique: true, key: true},
+    from: {type: 'text', required: true},
+    to: {type: 'text', required: true},
+    amount: Number,
+
+    //timestamps
+    created: {type: 'date', time: true},
+
+  }, {
+    hooks: {
+      beforeCreate: function (next) {
+        this.created = new Date();
+        next()
+      },
+    },
+  });
+
+  Transaction.getUserTransactions = function (username) {
+    return new Promise(function (resolve, reject) {
+      var query = 'select t.id, u.address,t.from, t.to, t.amount, t.created, CASE WHEN t.`from` = u.address THEN -t.amount ELSE t.amount END as diff ' +
+        'from Transaction as t inner join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ? order by t.created desc';
+      db.driver.db.query(query, [username], function (err, res) {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
+  };
+
+  Transaction.getUserBalance = function (username) {
+    return new Promise(function (resolve, reject) {
+      var query = 'select sum(CASE WHEN t.`from` = u.address THEN -t.amount ELSE t.amount END) as balance ' +
+        'from Transaction as t inner join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ?';
+      db.driver.db.query(query, [username], function (err, res) {
+        if (err) return reject(err);
+        resolve(parseFloat(res[0].balance));
+      });
+    });
+  };
 
   return cb();
 };

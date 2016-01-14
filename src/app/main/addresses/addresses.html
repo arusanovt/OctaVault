@@ -1,0 +1,8 @@
+<button class="btn btn-lg btn-success" ng-disabled="ctrl.isAddressLimited()">Add new address</button>
+<table class="table table-bordered table-hover addresses-table" ng-table="ctrl.addressesTable">
+  <tr ng-repeat="t in $data">
+    <td data-title="'Address'" sortable="'address'">{{t.address}}</td>
+    <td data-title="'Balance'" sortable="'balance'">{{t.balance}}</td>
+    <td data-title="'Timestamp'" sortable="'created'">{{t.created|date:'short'}}</td>
+  </tr>
+</table>
