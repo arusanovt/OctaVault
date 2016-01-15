@@ -43,6 +43,7 @@ app.use(function(req, res, next) {
 });
 
 app.use(require('./db/middleware'));
+app.use(require('./utils/errorformat.middleware'));
 app.use('/api/auth', auth);
 app.use('/api/wallet', wallet);
 

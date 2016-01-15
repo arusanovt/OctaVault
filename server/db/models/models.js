@@ -192,8 +192,8 @@ module.exports = function (db, cb) {
 
   UserAddress.getAddressBalance = function (username) {
     return new Promise(function (resolve, reject) {
-      var query = 'select u.address, u.created, sum(CASE WHEN t.`from` = u.address THEN -t.amount ELSE t.amount END) as balance '+
-      'from Transaction as t inner join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ? group by u.address order by u.created desc';
+      var query = 'select u.address, u.created, sum(CASE WHEN t.`from` = u.address THEN -t.amount ELSE t.amount END) as balance ' +
+        'from Transaction as t right join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ? group by u.address order by u.created desc';
       db.driver.db.query(query, [username], function (err, res) {
         if (err) return reject(err);
         resolve(res);
@@ -236,7 +236,7 @@ module.exports = function (db, cb) {
         'from Transaction as t inner join UserAddress as u on u.address = t.`from` or u.address = t.`to` where u.username = ?';
       db.driver.db.query(query, [username], function (err, res) {
         if (err) return reject(err);
-        resolve(parseFloat(res[0].balance));
+        resolve(parseFloat(res[0].balance || 0));
       });
     });
   };

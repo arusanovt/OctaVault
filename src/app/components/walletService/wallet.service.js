@@ -26,4 +26,8 @@ export class WalletService {
   addresses() {
     return this._request('addresses',{},'GET');
   }
+
+  addAddress(address){
+    return this._request('addresses',{address:address});
+  }
 }

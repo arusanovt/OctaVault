@@ -10,22 +10,6 @@ var recaptchaMiddleware = require('../auth/auth.recaptcha');
 var mailer = require('../email/mailer.service');
 var router = express.Router();
 
-function formatError(error) {
-  if (!Array.isArray(error)) {
-    error = [error];
-  }
-
-  return {
-    errors: error.map(err=> {
-      return {
-        message: err.message,
-        property: err.property,
-        type: err.type,
-      };
-    }),
-  };
-}
-
 function loginUser(user, req) {
   return new Promise(function(resolve, reject) {
     req.session.username = user.username;
@@ -73,12 +57,11 @@ router.post('/login', function(req, res) {
       //Always return one error to prevent username sneaking
       let err = new Error('Password not matched');
       err.property = 'password';
-      res.status(400).json(formatError(err));
+      res.jsonerror(err);
     });
 });
 
 router.post('/register', recaptchaMiddleware, function(req, res) {
-  //TODO: Add middleware for validating recaptcha
   req.models.User.qCreate(req.body)
     .then((user)=> {
       //Save user into session
@@ -91,9 +74,7 @@ router.post('/register', recaptchaMiddleware, function(req, res) {
           return res.json({confirmationCodeRequired: user.secure, type: 'registration_code'});
         });
     })
-    .catch(err=> {
-      res.status(400).json(formatError(err));
-    });
+    .catch(err=> res.jsonerror(err));
 });
 
 router.post('/validate-code', authService.authenticationMiddleware, authService.userMiddleware, function(req, res) {
@@ -130,7 +111,7 @@ router.post('/validate-code', authService.authenticationMiddleware, authService.
             })
             .catch(err=> {
               err.property = 'code';
-              res.status(400).json(formatError(err));
+              res.jsonerror(err);
             });
         }
       }
@@ -139,7 +120,7 @@ router.post('/validate-code', authService.authenticationMiddleware, authService.
     })
     .catch(err=> {
       err.property = 'code';
-      res.status(400).json(formatError(err));
+      res.jsonerror(err);
     });
 });
 
@@ -158,7 +139,7 @@ router.post('/renew-code', authService.authenticationMiddleware, authService.use
     })
     .catch(err=> {
       err.property = 'code';
-      res.status(400).json(formatError(err));
+      res.jsonerror(err);
     });
 });
 
@@ -178,7 +159,7 @@ router.post('/reset-password', recaptchaMiddleware, function(req, res) {
     .then(()=>res.json({status: 'sent'}))
     .catch(err=> {
       err.property = 'username';
-      res.status(400).json(formatError(err));
+      res.jsonerror(err);
     });
 });
 
@@ -227,7 +208,7 @@ router.post('/reset-password-complete', function(req, res) {
     .then((status)=>res.json(status))
     .catch(err=> {
       err.property = 'username';
-      res.status(400).json(formatError(err));
+      res.jsonerror(err);
     });
 });
 

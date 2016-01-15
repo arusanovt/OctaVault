@@ -20,4 +20,5 @@ var common = {
   base: 'http://localhost:3000',
 };
 
-module.exports = require('lodash').defaults(common, require(`./config.${process.env.NODE_ENV || 'development'}`));
+common = require('lodash').defaults(require(`./config.${process.env.NODE_ENV || 'development'}`),common);
+module.exports = common;

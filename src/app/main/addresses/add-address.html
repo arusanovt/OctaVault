@@ -1,0 +1,32 @@
+<div class="modal top am-fade" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form name="form" novalidate ng-submit="ctrl.addNewAddress()">
+        <div class="modal-header">
+          <button type="button" class="close" ng-click="$hide()">×</button>
+          <h4 class="modal-title">Add new address</h4></div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="address">Specify your new wallet address</label>
+            <input type="text" required minlength="4" server-validation name="address"
+                   ng-model="ctrl.addAddressModel.address" class="form-control" id="address" placeholder="New Address">
+            <div ng-messages="form.address.$error" role="alert">
+              <div ng-message="required">This field is required</div>
+              <div ng-message="minlength">This field is too short</div>
+              <div ng-message="maxlength">This field is too long</div>
+              <div ng-message="address">Address is not valid</div>
+              <div ng-message="server">{{form.address.$error.server}}</div>
+            </div>
+          </div>
+          <div ng-messages="form.$error" role="alert">
+            <div ng-message="serverAll">{{form.$error.serverAll}}</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link" ng-click="$hide()">Cancel</button>
+          <button type="submit" class="btn  btn-success">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
