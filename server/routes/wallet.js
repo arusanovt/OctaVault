@@ -12,11 +12,6 @@ router.all('*',
   authService.smsCodeMiddleware
 );
 
-router.get('/', function (req, res) {
-  //TODO: list all transactions
-  res.json([]);
-});
-
 router.get('/@me', function (req, res) {
   Promise.resolve(req.user.username)
     .then(username=> {

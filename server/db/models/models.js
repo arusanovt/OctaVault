@@ -44,7 +44,7 @@ module.exports = function (db, cb) {
         _this.created = new Date();
         _this.setPassword(_this.password).then(()=> {
           if (_this.secure) {
-            _this.registerSmsCode = verifyCode.generateDigits(6);
+            _this.registerSmsCode = verifyCode.generateDigits(7);
             _this.registerSmsCodeUpdated = new Date();
           }
 
@@ -104,7 +104,7 @@ module.exports = function (db, cb) {
 
       renewCode: function (codeType) {
         var verify = this.codeVerifyType(codeType);
-        this[verify + 'SmsCode'] = verifyCode.generateDigits(6);
+        this[verify + 'SmsCode'] = verifyCode.generateDigits(7);
         this[verify + 'SmsCodeUpdated'] = new Date();
         return this.qSave().then(()=>this[verify + 'SmsCode']);
       },

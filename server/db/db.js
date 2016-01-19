@@ -7,8 +7,8 @@ orm.settings.set('instance.returnAllErrors', true);
 module.exports = ()=> qOrm
   .qConnect(config.db)
   .then(db=> {
-    return new Promise(function(resolve, reject) {
-      db.load('./models/models', function(err) {
+    return new Promise(function (resolve, reject) {
+      db.load('./models/models', function (err) {
         if (err) return reject(err);
 
         let models = {};
@@ -17,7 +17,7 @@ module.exports = ()=> qOrm
         models.Transaction = db.models.Transaction;
         models.UserAddress = db.models.UserAddress;
 
-        models.sync = ()=>db.qDrop().then(()=>db.qSync());
+        models.sync = ()=>db.qDrop().then(()=>db.qSync()).then(()=>models);
         return resolve(models);
       });
     });

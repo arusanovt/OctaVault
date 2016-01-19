@@ -44,14 +44,14 @@ export class AuthController {
 
   renewCode() {
     //Ask server for new code
-    this.authService.renewCode(this.code.type)
+    return this.authService.renewCode(this.code.type)
       .then((responseData)=> this.code.refreshMessage = 'New code sent')
       .catch((err)=> this.code.refreshMessage = `Interval from last SMS isn't passed.`);
   }
 
 
   doResetPassword() {
-    this.authService.resetPassword(this.resetPassword)
+    return this.authService.resetPassword(this.resetPassword)
       .then((responseData)=> {
         this.resetPassword.sent = true;
       })
@@ -59,7 +59,7 @@ export class AuthController {
   }
 
   doAuth(method, data, goTo = 'wallet.list') {
-    this.authService[method](data)
+    return this.authService[method](data)
       .then((responseData)=> {
         console.log(method, responseData);
         if (responseData.confirmationCodeRequired) {

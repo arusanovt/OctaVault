@@ -6,82 +6,95 @@ var bodyParser = require('body-parser');
 var csrf = require('csurf');
 var session = require('express-session');
 var config = require('../config');
+var _ = require('lodash');
 
 var auth = require('./routes/auth');
 var wallet = require('./routes/wallet');
 
-var app = express();
-var env = process.env.NODE_ENV || 'development';
-app.locals.ENV = env;
-app.locals.ENV_DEVELOPMENT = env == 'development';
 
-app.use(logger);
-app.enable('trust proxy');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true,
-}));
-app.use(cookieParser());
-var sess = {
-  secret: config.sessionSecret,
-  cookie: {},
-  saveUninitialized: false,
-  resave: false,
-};
+module.exports = function (opts) {
+  "use strict";
+  opts = _.defaults(opts || {}, {
+    csrf: true,
+    env: process.env.NODE_ENV || 'development',
+    sessionSecret: config.sessionSecret,
+  });
 
-if (app.get('env') === 'production') {
-  app.set('trust proxy', 1);
-  sess.cookie.secure = true;
-}
+  var app = express();
+  app.locals.ENV = opts.env;
+  app.locals.ENV_DEVELOPMENT = opts.env == 'development';
 
-app.use(session(sess));
-app.use(csrf({cookie:app.get('env') === 'development'}));
-app.use(function(req, res, next) {
-  var token = req.csrfToken();
-  res.cookie('x-csrf-token', token);
-  next();
-});
+  app.use(logger);
+  app.enable('trust proxy');
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({
+    extended: true,
+  }));
+  app.use(cookieParser());
+  var sess = {
+    secret: opts.sessionSecret,
+    cookie: {},
+    saveUninitialized: false,
+    resave: false,
+  };
 
-app.use(require('./db/middleware'));
-app.use(require('./utils/errorformat.middleware'));
-app.use('/api/auth', auth);
-app.use('/api/wallet', wallet);
+  if (app.get('env') === 'production') {
+    app.set('trust proxy', 1);
+    sess.cookie.secure = true;
+  }
 
-/// error handlers
-app.use(function(err, req, res, next) {
-  if (err.code !== 'EBADCSRFTOKEN') return next(err);
+  app.use(session(sess));
 
-  res.status(400).json({errors:[{message:'Token expired'}]});
-});
+  //Set CSRF
+  if (opts.csrf) {
+    app.use(csrf({cookie: app.get('env') === 'development'}));
+    app.use(function (req, res, next) {
+      var token = req.csrfToken();
+      res.cookie('x-csrf-token', token);
+      next();
+    });
+  }
 
-/// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+  app.use(require('./db/middleware'));
+  app.use(require('./utils/errorformat.middleware'));
+  app.use('/api/auth', auth);
+  app.use('/api/wallet', wallet);
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
+  // error handlers
+  app.use(function (err, req, res, next) {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err);
+
+    res.status(400).json({errors: [{message: 'Token expired'}]});
+  });
+
+  // catch 404 and forward to error handler
+  app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+  });
+
+  // development error handler
+  // will print stacktrace
+  if (app.get('env') === 'development') {
+    app.use(function (err, req, res, next) {
+      res.status(err.status || 500).json({
+        message: err.message,
+        error: err,
+        reason: err.reason,
+        stack: err.stack,
+      });
+    });
+  }
+
+  // production error handler
+  // no stacktraces leaked to user
+  app.use(function (err, req, res, next) {
     res.status(err.status || 500).json({
       message: err.message,
-      error: err,
-      reason:err.reason,
-      stack: err.stack,
+      reason: err.reason,
+      error: {},
     });
   });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500).json({
-    message: err.message,
-    reason:err.reason,
-    error: {},
-  });
-});
-
-module.exports = app;
+  return app;
+};

@@ -40,7 +40,7 @@ module.exports.generate = function(password, options) {
   options || (options = {});
   options.algorithm || (options.algorithm = 'sha512');
   options.saltLength || options.saltLength == 0 || (options.saltLength = 24);
-  options.iterations || (options.iterations = 4);
+  options.iterations || (options.iterations = 128);
   var salt = generateSalt(options.saltLength);
   return generateHash(options.algorithm, salt, password, options.iterations);
 };

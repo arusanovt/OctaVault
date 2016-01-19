@@ -1,4 +1,4 @@
-describe('controllers', () => {
+xdescribe('controllers', () => {
   let vm;
 
   beforeEach(angular.mock.module('wallet'));

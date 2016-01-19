@@ -8,7 +8,6 @@ var sms = require('../sms/sms-verify');
 describe('Authorization', function() {
   var dbModels = null;
   before(function() {
-    console.log('droping tables');
     return db().then(models=> {
       dbModels = models;
       return models.sync();
@@ -33,7 +32,7 @@ describe('Authorization', function() {
 
   }
 
-  var app = require('../app');
+  var app = require('../app')();
   var agent = null;
   var csrf = '';
   var sendSmsCode = null;
@@ -180,7 +179,12 @@ describe('Authorization', function() {
         .expect(200)
         .end(function(err, res) {
           expect(res.body).to.eql({confirmationCodeRequired: false});
-          done(err);
+          agent.get('/api/wallet/@me')
+            .expect(200)
+            .end(function(err, res) {
+              expect(res.body).to.have.property('balance');
+              done(err);
+            });
         });
     });
 
