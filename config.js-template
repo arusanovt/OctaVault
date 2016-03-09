@@ -18,6 +18,13 @@ var common = {
   emailTransport: 'smtps://user%40gmail.com:pass@smtp.gmail.com',//Sample
   mailFrom: 'mailer@user.com',
   base: 'http://localhost:3000',
+  wallet: {
+    host: 'localhost',
+    port: 4246,
+    user: 'octacoinrpc',
+    pass: '8JdvjfkEcYq8HK7NJ6JkHT5csUt5G324kfi3fFEioefwef',
+    timeout: 30000
+  }
 };
 
 common = require('lodash').defaults(require(`./config.${process.env.NODE_ENV || 'development'}`),common);

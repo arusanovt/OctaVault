@@ -1,10 +1,11 @@
 'use strict';
 var pickupTransport = require('nodemailer-pickup-transport');
+var path = require('path');
 
 module.exports = {
   //Override base settings for development
   emailTransport: pickupTransport({
-    directory: './.tmp/',
+    directory: path.join(__dirname,'.tmp'),
   }),
   smsSender: function(recipientPhoneNumber, text) {
     //Dummy sms sender
